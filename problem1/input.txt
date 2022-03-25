@@ -1,0 +1,4 @@
+item1 100 20 raw y
+it2 5 1000 imported y
+itm3 1000 21 manufactured y
+item4 50 2 imported n
