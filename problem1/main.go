@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"problem1/requirement"
+	"problem1/service"
 )
 
 func getCmdArgs() {
@@ -19,5 +19,5 @@ func main() {
 	fmt.Println("main starts")
 
 	//call the task
-	requirement.TheLogic()
+	service.TheLogic()
 }

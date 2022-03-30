@@ -1,24 +1,25 @@
-package requirement
+package service
 
 import (
 	"fmt"
-	"problem1/concrete"
+	"problem1/item"
+	"problem1/util"
 )
 
-func TakeItemInputFromUser() []concrete.Item {
+func TakeItemInputFromUser() []item.Item {
 	// initialize vars
 	takeFurtherInput := true
-	itemList := []concrete.Item{}
+	itemList := []item.Item{}
 
 	//loop for item input
 	for takeFurtherInput == true {
 
 		//input a new Item
-		newItem := concrete.InputItem()
+		newItem := item.InputItem()
 		// fmt.Println(newItem)
 
 		//validate and add
-		if !concrete.ValidateItem(newItem) {
+		if !item.ValidateItem(newItem) {
 			fmt.Println("Item entered is invalid, can't add, please try again...!!!")
 		} else {
 			itemList = append(itemList, newItem)
@@ -26,9 +27,9 @@ func TakeItemInputFromUser() []concrete.Item {
 			// fmt.Println(itemList)
 		}
 
-		takeFurtherInput := concrete.AskForUserChoice()
+		takeFurtherInput := util.AskForUserChoice()
 		// fmt.Println(takeFurtherInput)
-		if concrete.ValidateYesNoChoice(takeFurtherInput) && takeFurtherInput == "n" {
+		if util.ValidateYesNoChoice(takeFurtherInput) && takeFurtherInput == "n" {
 			break
 		}
 	}
@@ -37,18 +38,18 @@ func TakeItemInputFromUser() []concrete.Item {
 	return itemList
 }
 
-func CalculateTaxOnItems(items []concrete.Item) []concrete.Item {
-	// itemList := []concrete.Item{}
+func CalculateTaxOnItems(items []item.Item) []item.Item {
+	// itemList := []item.Item{}
 
-	for index, item := range items {
-		items[index] = *concrete.UpdateTaxOnItem(item)
+	for index, itemi := range items {
+		items[index] = *item.UpdateTaxOnItem(itemi)
 		// itemList = append(itemList, item)
-		// fmt.Println("--", item)
+		// fmt.Println("--", index, item)
 		// fmt.Println("--", items)
 	}
 
-	// items = append(*items, concrete.Item{})
-	// concrete.PrintItemDetails(itemList)
+	// items = append(*items, item.Item{})
+	// item.PrintItemDetails(itemList)
 	return items
 }
 
@@ -57,6 +58,6 @@ func TheLogic() bool {
 
 	itemList := TakeItemInputFromUser()
 	itemList = CalculateTaxOnItems(itemList)
-	concrete.PrintItemDetails(itemList)
+	item.PrintItemDetails(itemList)
 	return true
 }
