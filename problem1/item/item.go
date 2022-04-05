@@ -1,67 +1,46 @@
 package item
 
-import "fmt"
-
 type Item struct {
-	itemName     string
-	itemPrice    int
-	itemQuantity int
-	itemType     string
-	itemTax      float64
+	Name     string
+	Price    int
+	Quantity int
+	Ttype    string
+	Tax      float64
 }
 
-/*
-	Doubt :
-		here the object should be created first and then vales to be taken as input
-		or
-		values to be taken first and then to create object ?
-*/
-// input an item
-func InputItem() Item {
-
-	// create empty item object
-	newItem := Item{}
-
-	// take all four values as input
-	fmt.Println("\n--------------------")
-	fmt.Print("Enter item name : ")
-	fmt.Scan(&newItem.itemName)
-	fmt.Print("Enter item price : ")
-	fmt.Scan(&newItem.itemPrice)
-	fmt.Print("Enter item quantity : ")
-	fmt.Scan(&newItem.itemQuantity)
-	fmt.Print("Enter item type : ")
-	fmt.Scan(&newItem.itemType)
-
-	return newItem
+func (it *Item) Init(name string, price int, quantity int, ttype string) {
+	it.Name = name
+	it.Price = price
+	it.Quantity = quantity
+	it.Ttype = ttype
 }
 
 func ValidateItem(givenItem Item) bool {
 
-	if givenItem.itemName == "" {
+	if givenItem.Name == "" {
 		return false
 	}
 
-	if givenItem.itemPrice <= 0 {
+	if givenItem.Price <= 0 {
 		return false
 	}
 
-	if givenItem.itemQuantity <= 0 {
+	if givenItem.Quantity <= 0 {
 		return false
 	}
 
-	if !ValidateItemType(givenItem.itemType) {
+	if !Validatettype(givenItem.Ttype) {
 		return false
 	}
 
 	return true
 }
 
-func ValidateItemType(givenItemType string) bool {
-	validItemTypes := [3]string{"raw", "manufactured", "imported"}
-	// fmt.Println(validItemTypes)
-	for _, itemType := range validItemTypes {
-		if itemType == givenItemType {
+func Validatettype(giventtype string) bool {
+	validttypes := [3]string{"raw", "manufactured", "imported"}
+	// fmt.Println(validttypes)
+	for _, ttype := range validttypes {
+		if ttype == giventtype {
 			return true
 		}
 	}
@@ -69,56 +48,36 @@ func ValidateItemType(givenItemType string) bool {
 }
 
 func UpdateTaxOnItem(item Item) *Item {
-	switch item.itemType {
+	switch item.Ttype {
 	case "raw":
-		item.itemTax = CalculateRawItemTax(item.itemPrice, item.itemQuantity)
+		item.Tax = CalculateRawtax(item.Price, item.Quantity)
 
 	case "manufactured":
-		item.itemTax = CalulateManufacturedItemTax(item.itemPrice, item.itemQuantity)
+		item.Tax = CalulateManufacturedtax(item.Price, item.Quantity)
 
 	case "imported":
-		item.itemTax = CalulateImportedItemTax(item.itemPrice, item.itemQuantity)
+		item.Tax = CalulateImportedtax(item.Price, item.Quantity)
 	}
 	// fmt.Println(item)
 	return &item
 }
 
-func PrintItemDetails(items []Item) {
-	fmt.Println()
-	fmt.Println("+-----------+-----------+----------+----------------+---------------------+")
-	fmt.Printf("|%10s |%10s |%9s |%15s |%20s |\n", "Item Name", "Price", "Quantity", "Type", "Tax")
-
-	for _, item := range items {
-		fmt.Println("+-----------+-----------+----------+----------------+---------------------+")
-		fmt.Printf("|%10s |%10d |%9d |%15s |%20f |\n", item.itemName, item.itemPrice, item.itemQuantity, item.itemType, item.itemTax)
-	}
-	fmt.Println("+-----------+-----------+----------+----------------+---------------------+")
-
-	/*
-		fmt.Printf("name     : %20s\n", item.itemName)
-		fmt.Println("price    : ", item.itemPrice)
-		fmt.Println("quantity : ", item.itemQuantity)
-		fmt.Println("type     : ", item.itemType)
-		fmt.Println("tax      : ", item.itemTax)
-	*/
-}
-
-func CalculateRawItemTax(itemPrice int, itemQuantity int) float64 {
+func CalculateRawtax(price int, quantity int) float64 {
 	/*
 		12.5% of the item cost
 	*/
-	return float64(itemPrice) * float64(itemQuantity) * 12.5 / 100
+	return float64(price) * float64(quantity) * 12.5 / 100
 }
 
-func CalulateManufacturedItemTax(itemPrice int, itemQuantity int) float64 {
+func CalulateManufacturedtax(price int, quantity int) float64 {
 	/*
 		12.5% of the item cost + 2% of (item cost + 12.5% of the item cost)
 		=> item cost ( 12.5% + 2% (1 + 12.5%))
 	*/
-	return float64(itemPrice) * float64(itemQuantity) * (12.5 + 2*(1+12.5/100)) / 100
+	return float64(price) * float64(quantity) * (12.5 + 2*(1+12.5/100)) / 100
 }
 
-func CalulateImportedItemTax(itemPrice int, itemQuantity int) float64 {
+func CalulateImportedtax(price int, quantity int) float64 {
 	/*
 		10% import duty on item cost
 		+
@@ -132,7 +91,7 @@ func CalulateImportedItemTax(itemPrice int, itemQuantity int) float64 {
 		=> item cost ( 10% + 2% (1 + 12.5%))
 	*/
 
-	costWithoutTax := float64(itemPrice) * float64(itemQuantity)
+	costWithoutTax := float64(price) * float64(quantity)
 
 	if costWithoutTax*110/100 <= 100 {
 		return costWithoutTax*10/100 + 5

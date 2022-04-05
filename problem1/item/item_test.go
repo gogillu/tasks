@@ -2,7 +2,29 @@ package item
 
 import (
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
+
+func TestValidateItemNew(t *testing.T) {
+	tests := []struct {
+		name     string
+		price    int
+		quantity int
+		ttype    string
+		tax      float64
+		output   bool
+	}{
+		{
+			"item1", 50, 2, "raw", 0.0, true,
+		},
+	}
+
+	for _, tc := range tests {
+		resp := ValidateItem(Item{tc.name, tc.price, tc.quantity, tc.ttype, tc.tax})
+		require.Equal(t, tc.output, resp)
+	}
+}
 
 func TestValidateItem(t *testing.T) {
 
@@ -68,13 +90,13 @@ func TestValidateItem(t *testing.T) {
 
 }
 
-func TestValidateItemType(t *testing.T) {
+func TestValidatettype(t *testing.T) {
 
 	var expectedOutput, actualOutput bool
 
 	// Positive case
 	//  case1 :
-	actualOutput = ValidateItemType("raw")
+	actualOutput = Validatettype("raw")
 	expectedOutput = true
 
 	if actualOutput != expectedOutput {
@@ -82,7 +104,7 @@ func TestValidateItemType(t *testing.T) {
 	}
 
 	//  case2 :
-	actualOutput = ValidateItemType("manufactured")
+	actualOutput = Validatettype("manufactured")
 	expectedOutput = true
 
 	if actualOutput != expectedOutput {
@@ -90,7 +112,7 @@ func TestValidateItemType(t *testing.T) {
 	}
 
 	//  case3 :
-	actualOutput = ValidateItemType("imported")
+	actualOutput = Validatettype("imported")
 	expectedOutput = true
 
 	if actualOutput != expectedOutput {
@@ -99,7 +121,7 @@ func TestValidateItemType(t *testing.T) {
 
 	// Negative Cases
 	//  case4 :
-	actualOutput = ValidateItemType("rawwww")
+	actualOutput = Validatettype("rawwww")
 	expectedOutput = false
 
 	if actualOutput != expectedOutput {
@@ -107,7 +129,7 @@ func TestValidateItemType(t *testing.T) {
 	}
 
 	//  case5 :
-	actualOutput = ValidateItemType("refurbished")
+	actualOutput = Validatettype("refurbished")
 	expectedOutput = false
 
 	if actualOutput != expectedOutput {
@@ -127,7 +149,7 @@ func TestUpdateTaxOnItem(t *testing.T) {
 	actualOutput = UpdateTaxOnItem(item1)
 	expectedOutput = Item{"item1", 100, 25, "raw", 100.0 * 25.0 * 12.5 / 100}
 
-	if actualOutput.itemTax != expectedOutput.itemTax {
+	if actualOutput.Tax != expectedOutput.Tax {
 		t.Errorf("expected %+v, actual %+v", expectedOutput, actualOutput)
 	}
 
@@ -137,7 +159,7 @@ func TestUpdateTaxOnItem(t *testing.T) {
 	actualOutput = UpdateTaxOnItem(item2)
 	expectedOutput = Item{"item2", 40, 3, "raw", 40.0 * 3.0 * (12.5 + 2*(1+12.5/100)) / 100}
 
-	if actualOutput.itemTax != expectedOutput.itemTax {
+	if actualOutput.Tax != expectedOutput.Tax {
 		t.Errorf("expected %+v, actual %+v", expectedOutput, actualOutput)
 	}
 
@@ -147,35 +169,19 @@ func TestUpdateTaxOnItem(t *testing.T) {
 	actualOutput = UpdateTaxOnItem(item3)
 	expectedOutput = Item{"item3", 150, 300, "raw", 150.0 * 300.0 * (10.0 / 100.0) * (1.0 + 105.0/100.0)}
 
-	if actualOutput.itemTax != expectedOutput.itemTax {
+	if actualOutput.Tax != expectedOutput.Tax {
 		t.Errorf("expected %+v, actual %+v", expectedOutput, actualOutput)
 	}
 
 }
 
-func TestPrintItemDetails(t *testing.T) {
-
-	// Positive case
-	//  case1 :
-	item1 := Item{"item1", 100, 25, "raw", 0}
-	item2 := Item{"item2", 40, 3, "manufactured", 0}
-	item3 := Item{"item3", 150, 300, "imported", 0}
-	items := []Item{item1, item2, item3}
-
-	for index, item := range items {
-		items[index] = *UpdateTaxOnItem(item)
-	}
-
-	PrintItemDetails(items)
-}
-
-func TestCalculateRawItemTax(t *testing.T) {
+func TestCalculateRawtax(t *testing.T) {
 
 	var expectedOutput, actualOutput float64
 
 	// Positive cases
 	//  case1
-	actualOutput = CalculateRawItemTax(100, 20)
+	actualOutput = CalculateRawtax(100, 20)
 	expectedOutput = 250.0
 
 	if expectedOutput != actualOutput {
@@ -183,7 +189,7 @@ func TestCalculateRawItemTax(t *testing.T) {
 	}
 
 	//  case2
-	actualOutput = CalculateRawItemTax(5, 10)
+	actualOutput = CalculateRawtax(5, 10)
 	expectedOutput = 6.250
 
 	if expectedOutput != actualOutput {
@@ -192,13 +198,13 @@ func TestCalculateRawItemTax(t *testing.T) {
 
 }
 
-func TestCalulateManufacturedItemTax(t *testing.T) {
+func TestCalulateManufacturedtax(t *testing.T) {
 
 	var expectedOutput, actualOutput float64
 
 	// Positive cases
 	//  case1
-	actualOutput = CalulateManufacturedItemTax(10, 2)
+	actualOutput = CalulateManufacturedtax(10, 2)
 	expectedOutput = 10.0 * 2.0 * (12.5 + 2*(1+12.5/100)) / 100
 
 	if expectedOutput != actualOutput {
@@ -206,7 +212,7 @@ func TestCalulateManufacturedItemTax(t *testing.T) {
 	}
 
 	//  case2
-	actualOutput = CalulateManufacturedItemTax(5, 10)
+	actualOutput = CalulateManufacturedtax(5, 10)
 	expectedOutput = 5.0 * 10 * (12.5 + 2*(1+12.5/100)) / 100
 
 	if expectedOutput != actualOutput {
@@ -215,13 +221,13 @@ func TestCalulateManufacturedItemTax(t *testing.T) {
 
 }
 
-func TestCalulateImportedItemTax(t *testing.T) {
+func TestCalulateImportedtax(t *testing.T) {
 
 	var expectedOutput, actualOutput float64
 
 	// Positive cases
 	//  case1
-	actualOutput = CalulateImportedItemTax(2, 3)
+	actualOutput = CalulateImportedtax(2, 3)
 	expectedOutput = 2.0*3.0*10.0/100 + 5.0
 
 	if expectedOutput != actualOutput {
@@ -229,7 +235,7 @@ func TestCalulateImportedItemTax(t *testing.T) {
 	}
 
 	//  case2
-	actualOutput = CalulateImportedItemTax(50, 3)
+	actualOutput = CalulateImportedtax(50, 3)
 	expectedOutput = 50.0*3.0*10.0/100 + 10.0
 
 	if expectedOutput != actualOutput {
@@ -237,7 +243,7 @@ func TestCalulateImportedItemTax(t *testing.T) {
 	}
 
 	//  case3
-	actualOutput = CalulateImportedItemTax(80, 40)
+	actualOutput = CalulateImportedtax(80, 40)
 	expectedOutput = 80.0 * 40.0 * 10.0 / 100 * (1.0 + 105.0/100)
 
 	if expectedOutput != actualOutput {
@@ -245,7 +251,7 @@ func TestCalulateImportedItemTax(t *testing.T) {
 	}
 	/*
 		//  case4
-		actualOutput = CalulateImportedItemTax(85, 45)
+		actualOutput = CalulateImportedtax(85, 45)
 		expectedOutput = 85.0 * 45.0 * 10.0 / 100 * (1.0 + 105.0/100)
 
 		if expectedOutput != actualOutput {
