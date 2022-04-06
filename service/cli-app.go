@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"problem1/io"
 	"problem1/item"
-	"problem1/util"
 )
 
 func TakeItemInputFromUser() []item.Item {
@@ -17,15 +16,15 @@ func TakeItemInputFromUser() []item.Item {
 		newItem := io.InputItem()
 
 		//validate item and add
-		if !item.ValidateItem(newItem) {
+		if newItem.ValidateItem() != nil {
 			fmt.Println("Item entered is invalid, can't add, please try again...!!!")
 		} else {
 			itemList = append(itemList, newItem)
 			fmt.Println("==> new Item Added", newItem)
 		}
 
-		takeFurtherInput := util.AskForUserChoice()
-		if util.ValidateYesNoChoice(takeFurtherInput) && takeFurtherInput == "n" {
+		takeFurtherInput := io.GetUserChoice()
+		if io.ValidateYesNoChoice(takeFurtherInput) && takeFurtherInput == "n" {
 			break
 		}
 	}
@@ -34,19 +33,21 @@ func TakeItemInputFromUser() []item.Item {
 	return itemList
 }
 
-func CalculateTaxOnItems(items []item.Item) []item.Item {
+func CalculateTaxOnItems(items []item.Item) map[item.Item]float64 {
+	var itemTaxMap map[item.Item]float64 = make(map[item.Item]float64)
 
-	for index, itemi := range items {
-		items[index] = *item.UpdateTaxOnItem(itemi)
+	for _, itemi := range items {
+		itemTaxMap[itemi] = itemi.CalculateTaxOnItem()
 	}
 
-	return items
+	return itemTaxMap
 }
 
 func CliItemInputAndCalculation() bool {
 
 	itemList := TakeItemInputFromUser()
-	itemList = CalculateTaxOnItems(itemList)
-	io.PrintItemDetails(itemList)
+	fmt.Println(itemList)
+	itemTaxMap := CalculateTaxOnItems(itemList)
+	io.PrintItemDetails(itemTaxMap)
 	return true
 }

@@ -1,7 +1,0 @@
-------------
-govind@Administrators-MacBook-Pro problem1 % go test ./... -race -covermode=atomic -coverprofile=coverage.out
-?       problem1        [no test files]
-ok      problem1/concrete       0.460s  coverage: 71.2% of statements
-ok      problem1/requirement    0.719s  coverage: 0.0% of statements [no tests to run]
-govind@Administrators-MacBook-Pro problem1 % 
--------------

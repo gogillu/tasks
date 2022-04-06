@@ -1,5 +1,2 @@
-# tasks
-Tasks
-
-Sample run in output.log
-Unittest result on unitTest.out
+# item-tax-managet
+Cli tool for managing tax on items
