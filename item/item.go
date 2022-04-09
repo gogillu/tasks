@@ -2,111 +2,98 @@ package item
 
 import (
 	"fmt"
-	"problem1/item/enum"
+	"tax-manager/item/enum"
 
 	validation "github.com/go-ozzo/ozzo-validation"
 )
 
 type Item struct {
-	Name     string        `json:"name,omitempty"`
-	Price    int           `json:"price,omitempty"`
-	Quantity int           `json:"quantity,omitempty"`
-	Type     enum.ItemType `json:"type,omitempty"`
+	name     string
+	price    int
+	quantity int
+	typ      enum.ItemType
+}
+
+func (itm Item) GetName() string {
+	return itm.name
+}
+
+func (itm Item) GetPrice() int {
+	return itm.price
+}
+
+func (itm Item) GetQuantity() int {
+	return itm.quantity
+}
+
+func (itm Item) GetType() enum.ItemType {
+	return itm.typ
 }
 
 func New(name string, price int, quantity int, Type string) Item {
 
-	itemType, err := enum.GetItemTypeFromString(Type)
+	itemType, err := enum.GetItemType(Type)
 	if err != nil {
 		panic(err)
 	}
 
 	item := Item{}
-	item.Name = name
-	item.Price = price
-	item.Quantity = quantity
-	item.Type = itemType
+	item.name = name
+	item.price = price
+	item.quantity = quantity
+	item.typ = itemType
 
 	return item
 }
 
-func (item Item) ValidateItem() error {
+func (item Item) Validate() error {
 
 	return validation.ValidateStruct(&item,
-		validation.Field(&item.Price, validation.By(validateNegativeInt)),
-		validation.Field(&item.Quantity, validation.By(validateNegativeInt)),
+		validation.Field(&item.price, validation.By(checkNegativeValue)),
+		validation.Field(&item.quantity, validation.By(checkNegativeValue)),
 	)
 }
 
-func validateNegativeInt(val interface{}) error {
+func checkNegativeValue(val interface{}) error {
 	switch x := val.(type) {
 	case int:
 		if x < 0 {
-			return fmt.Errorf("%d given value is negative", x)
+			return fmt.Errorf("error : %d given value is negative", val)
 		}
 	}
 	return nil
 }
 
-func (item Item) CalculateTaxOnItem() float64 {
-	switch item.Type {
+func (item Item) GetInvoice() {
+	fmt.Printf("|%10s |%10d |%9d |%15s |%20f |\n", item.GetName(), item.GetPrice(), item.GetQuantity(), item.GetType(), item.CalculateTax())
+}
+
+func (item Item) CalculateTax() float64 {
+
+	var tax float64
+
+	switch item.typ {
 	case enum.Raw:
-		return CalculateRawtax(item.Price, item.Quantity)
+		tax = float64(item.price) * float64(item.quantity) * RawItmTaxRate
 
 	case enum.Manufactured:
-		return CalulateManufacturedtax(item.Price, item.Quantity)
+		tax = float64(item.price) * float64(item.quantity) * (ManufacturedItmTaxRate + ManufacturedItmTaxRate*(1+ManufacturedItmExtraTaxRate))
 
 	case enum.Imported:
-		return CalulateImportedtax(item.Price, item.Quantity)
+		tax = float64(item.price)*float64(item.quantity)*ImportDutyRate + getSurcharge(float64(item.price*item.quantity)*(1.0+ImportDutyRate))
 	}
 
-	panic("error calculating tax on invalid item type")
+	return tax
 }
 
-func CalculateRawtax(price int, quantity int) float64 {
-	/*
-		12.5% of the item cost
-	*/
-	return float64(price) * float64(quantity) * RawItemTaxPercent / Hundread
-}
+func getSurcharge(price float64) float64 {
 
-func CalulateManufacturedtax(price int, quantity int) float64 {
-	/*
-		12.5% of the item cost + 2% of (item cost + 12.5% of the item cost)
-		=> item cost ( 12.5% + 2% (1 + 12.5%))
-	*/
-	return float64(price) * float64(quantity) * (ManufacturedItemPercentA + ManufacturedItemPercentB*(1+ManufacturedItemPercentA/Hundread)) / Hundread
-}
-
-func CalcualteImportDuty(price int, quantity int) float64 {
-	/*
-		10% import duty on item cost
-	*/
-
-	return float64(price) * float64(quantity) * ImportDutyPercent / Hundread
-}
-
-func CalulateImportedtax(price int, quantity int) float64 {
-	/*
-		import duty + surcharge
-	*/
-
-	itemPrice := float64(price) * float64(quantity)
-	importDuty := CalcualteImportDuty(price, quantity)
-	totalPriceWithImportDuty := itemPrice + importDuty
-
-	if totalPriceWithImportDuty <= ImportDutyLevelOne {
-
-		return importDuty + SurchargeLevelOneAmount
-
-	} else if totalPriceWithImportDuty <= ImportDutyLevelTwo {
-
-		return importDuty + SurchargeLevelOneAmount
-
+	if price <= SurchargeCap1Amt {
+		return SurchargeSlab1Amt
+	} else if price <= SurchargeCap2Amt {
+		return SurchargeSlab2Amt
 	} else {
-
-		return importDuty + totalPriceWithImportDuty*SurchargeLevelThreePercent/Hundread
-
+		return price * SurchargeSlab3Rate
 	}
 
 }

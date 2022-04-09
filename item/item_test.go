@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestValidateItemNew(t *testing.T) {
+func TestValidateValidItem(t *testing.T) {
 
 	// Positive Cases
 	positiveTests := []struct {
@@ -20,9 +20,12 @@ func TestValidateItemNew(t *testing.T) {
 	}
 
 	for _, tc := range positiveTests {
-		resp := tc.item.ValidateItem()
+		resp := tc.item.Validate()
 		require.Equal(t, tc.expectedOutput, resp)
 	}
+}
+
+func TestValidateInvalidItem(t *testing.T) {
 
 	// Negative Cases
 	negativeTests := []struct {
@@ -34,26 +37,27 @@ func TestValidateItemNew(t *testing.T) {
 	}
 
 	for _, tc := range negativeTests {
-		resp := tc.item.ValidateItem()
+		resp := tc.item.Validate()
 		require.NotEqual(t, tc.expectedOutput, resp)
 	}
 
 }
 
 func TestCalculateTaxOnItem(t *testing.T) {
-	// Positive Cases
-	positiveTests := []struct {
+
+	tests := []struct {
 		item        Item
 		expectedTax float64
 	}{
 		{Item{"item1", 100, 20, "raw"}, 250.0},
-		{Item{"item2", 5, 1000, "imported"}, 775.0},
-		{Item{"item3", 1000, 21, "manufactured"}, 3097.5},
-		{Item{"item4", 50, 2, "imported"}, 15.0},
+		{Item{"item2", 1000, 21, "manufactured"}, 5302.5},
+		{Item{"item3", 40, 2, "imported"}, 13.0},
+		{Item{"item4", 50, 3, "imported"}, 25.0},
+		{Item{"item5", 100, 35, "imported"}, 542.5},
 	}
 
-	for _, tc := range positiveTests {
-		resp := tc.item.CalculateTaxOnItem()
+	for _, tc := range tests {
+		resp := tc.item.CalculateTax()
 		require.Equal(t, tc.expectedTax, resp)
 	}
 }

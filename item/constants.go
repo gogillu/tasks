@@ -1,14 +1,13 @@
 package item
 
 const (
-	RawItemTaxPercent          = 12.5
-	ManufacturedItemPercentA   = 12.5
-	ManufacturedItemPercentB   = 2
-	ImportDutyPercent          = 10
-	ImportDutyLevelOne         = 100
-	ImportDutyLevelTwo         = 200
-	SurchargeLevelOneAmount    = 5
-	SurchargeLevelTwoAmount    = 10
-	SurchargeLevelThreePercent = 5
-	Hundread                   = 100
+	RawItmTaxRate               = 0.125
+	ManufacturedItmTaxRate      = 0.125
+	ManufacturedItmExtraTaxRate = 0.020
+	ImportDutyRate              = 0.100
+	SurchargeCap1Amt            = 100
+	SurchargeCap2Amt            = 200
+	SurchargeSlab1Amt           = 5
+	SurchargeSlab2Amt           = 10
+	SurchargeSlab3Rate          = 0.05
 )

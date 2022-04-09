@@ -1,4 +1,4 @@
-module problem1
+module tax-manager
 
 go 1.18
 

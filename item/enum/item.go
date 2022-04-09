@@ -16,7 +16,7 @@ var allItemType = []ItemType{
 	Imported,
 }
 
-func GetItemTypeFromString(s string) (ItemType, error) {
+func GetItemType(s string) (ItemType, error) {
 	for itemType := range allItemType {
 		if string(allItemType[itemType]) == s {
 			return allItemType[itemType], nil

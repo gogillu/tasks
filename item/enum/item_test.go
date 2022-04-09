@@ -6,9 +6,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestCalculateTaxOnItem(t *testing.T) {
-	// Positive Cases
-	positiveTests := []struct {
+func TestGetValidItemType(t *testing.T) {
+	tests := []struct {
 		itemTypeString   string
 		expectedItemType ItemType
 		expectedError    error
@@ -18,14 +17,16 @@ func TestCalculateTaxOnItem(t *testing.T) {
 		{"imported", Imported, nil},
 	}
 
-	for _, tc := range positiveTests {
-		resp, err := GetItemTypeFromString(tc.itemTypeString)
+	for _, tc := range tests {
+		resp, err := GetItemType(tc.itemTypeString)
 		require.Equal(t, tc.expectedItemType, resp)
 		require.Equal(t, tc.expectedError, err)
 	}
 
-	// Negative Cases
-	negativeTests := []struct {
+}
+func TestGetInvalidItemType(t *testing.T) {
+
+	tests := []struct {
 		itemTypeString   string
 		expectedItemType ItemType
 		expectedError    error
@@ -34,8 +35,8 @@ func TestCalculateTaxOnItem(t *testing.T) {
 		{"old", Manufactured, nil},
 	}
 
-	for _, tc := range negativeTests {
-		resp, err := GetItemTypeFromString(tc.itemTypeString)
+	for _, tc := range tests {
+		resp, err := GetItemType(tc.itemTypeString)
 		require.NotEqual(t, tc.expectedItemType, resp)
 		require.NotEqual(t, tc.expectedError, err)
 	}
