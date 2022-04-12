@@ -1,26 +1,11 @@
 package enum
 
-import "fmt"
+//go:generate enumer -type=ItemType
 
-type ItemType string
+type ItemType int
 
 const (
-	Raw          ItemType = "raw"
-	Manufactured ItemType = "manufactured"
-	Imported     ItemType = "imported"
+	Raw ItemType = iota
+	Manufactured
+	Imported
 )
-
-var allItemType = []ItemType{
-	Raw,
-	Manufactured,
-	Imported,
-}
-
-func GetItemType(s string) (ItemType, error) {
-	for itemType := range allItemType {
-		if string(allItemType[itemType]) == s {
-			return allItemType[itemType], nil
-		}
-	}
-	return "", fmt.Errorf("%s provided string is not a valid ItemType", s)
-}

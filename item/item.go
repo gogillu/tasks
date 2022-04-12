@@ -14,6 +14,12 @@ type Item struct {
 	typ      enum.ItemType
 }
 
+type Invoice struct {
+	itm            Item
+	tax            float64
+	effectivePrice float64
+}
+
 func (itm Item) GetName() string {
 	return itm.name
 }
@@ -30,27 +36,30 @@ func (itm Item) GetType() enum.ItemType {
 	return itm.typ
 }
 
-func New(name string, price int, quantity int, Type string) Item {
+func New(name string, price int, quantity int, Type string) (Item, error) {
 
-	itemType, err := enum.GetItemType(Type)
+	itmType, err := enum.ItemTypeString(Type)
 	if err != nil {
-		panic(err)
+		return Item{}, fmt.Errorf("error : provided item type value is not valid")
 	}
 
-	item := Item{}
-	item.name = name
-	item.price = price
-	item.quantity = quantity
-	item.typ = itemType
+	itm := Item{}
+	itm.name = name
+	itm.price = price
+	itm.quantity = quantity
+	itm.typ = itmType
 
-	return item
+	if err := itm.validate(); err != nil {
+		return itm, fmt.Errorf("error : item validation failed")
+	}
+
+	return itm, nil
 }
 
-func (item Item) Validate() error {
-
-	return validation.ValidateStruct(&item,
-		validation.Field(&item.price, validation.By(checkNegativeValue)),
-		validation.Field(&item.quantity, validation.By(checkNegativeValue)),
+func (itm Item) validate() error {
+	return validation.ValidateStruct(&itm,
+		validation.Field(&itm.price, validation.By(checkNegativeValue)),
+		validation.Field(&itm.quantity, validation.By(checkNegativeValue)),
 	)
 }
 
@@ -64,36 +73,38 @@ func checkNegativeValue(val interface{}) error {
 	return nil
 }
 
-func (item Item) GetInvoice() {
-	fmt.Printf("|%10s |%10d |%9d |%15s |%20f |\n", item.GetName(), item.GetPrice(), item.GetQuantity(), item.GetType(), item.CalculateTax())
+func (itm Item) GetInvoice() Invoice {
+	return Invoice{
+		itm:            itm,
+		tax:            itm.CalculateTax(),
+		effectivePrice: itm.CalculateTax() + float64(itm.GetPrice()*itm.GetQuantity()),
+	}
 }
 
-func (item Item) CalculateTax() float64 {
+func (itm Item) CalculateTax() float64 {
 
 	var tax float64
 
-	switch item.typ {
+	switch itm.typ {
 	case enum.Raw:
-		tax = float64(item.price) * float64(item.quantity) * RawItmTaxRate
+		tax = float64(itm.price) * float64(itm.quantity) * RawItmTaxRate
 
 	case enum.Manufactured:
-		tax = float64(item.price) * float64(item.quantity) * (ManufacturedItmTaxRate + ManufacturedItmTaxRate*(1+ManufacturedItmExtraTaxRate))
+		tax = float64(itm.price) * float64(itm.quantity) * (ManufacturedItmTaxRate + ManufacturedItmTaxRate*(1+ManufacturedItmExtraTaxRate))
 
 	case enum.Imported:
-		tax = float64(item.price)*float64(item.quantity)*ImportDutyRate + getSurcharge(float64(item.price*item.quantity)*(1.0+ImportDutyRate))
+		tax = float64(itm.price)*float64(itm.quantity)*ImportDutyRate + getSurcharge(float64(itm.price*itm.quantity)*(1.0+ImportDutyRate))
 	}
 
 	return tax
 }
 
 func getSurcharge(price float64) float64 {
-
-	if price <= SurchargeCap1Amt {
-		return SurchargeSlab1Amt
-	} else if price <= SurchargeCap2Amt {
-		return SurchargeSlab2Amt
+	if price <= SurchargeCap1MaxAmt {
+		return SurchargeAmt1
+	} else if price <= SurchargeCap2MaxAmt {
+		return SurchargeAmt2
 	} else {
-		return price * SurchargeSlab3Rate
+		return price * SurchargeRate3
 	}
-
 }
