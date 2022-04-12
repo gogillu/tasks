@@ -1,7 +1,7 @@
 package main
 
 import (
-	"tax-manager/app"
+	"github.com/gogillu/tax-manager/app"
 )
 
 func main() {

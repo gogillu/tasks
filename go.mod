@@ -1,5 +1,4 @@
-module tax-manager
-
+module github.com/gogillu/tax-manager
 go 1.18
 
 require (

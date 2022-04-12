@@ -2,19 +2,20 @@ package item
 
 import (
 	"fmt"
-	"tax-manager/item/enum"
 	"testing"
+
+	"github.com/gogillu/tax-manager/item/enum"
 
 	"github.com/stretchr/testify/require"
 )
 
 func TestNewItem(t *testing.T) {
-	positiveTests := []struct {
-		itmName        string
-		itmPrice       int
-		itmQuantity    int
-		itmType        string
-		expectedOutput error
+	tests := []struct {
+		itmName     string
+		itmPrice    int
+		itmQuantity int
+		itmType     string
+		expErr      error
 	}{
 		{
 			"item1",
@@ -60,18 +61,17 @@ func TestNewItem(t *testing.T) {
 		},
 	}
 
-	for _, tc := range positiveTests {
+	for _, tc := range tests {
 		_, err := New(tc.itmName, tc.itmPrice, tc.itmQuantity, tc.itmType)
-		require.Equal(t, tc.expectedOutput, err)
+		require.Equal(t, tc.expErr, err)
 	}
 }
 
-// Positive Cases
-func TestValidateValidItem(t *testing.T) {
+func TestValidateItem(t *testing.T) {
 
-	positiveTests := []struct {
-		item           Item
-		expectedOutput error
+	tests := []struct {
+		item   Item
+		expErr error
 	}{
 		{
 			Item{"item1", 50, 2, enum.Raw},
@@ -89,33 +89,27 @@ func TestValidateValidItem(t *testing.T) {
 			Item{"item4", 110, 4, enum.Imported},
 			nil,
 		},
+		{
+			Item{"item5", 10, -20, enum.Manufactured},
+			fmt.Errorf("invalid quantity"),
+		},
+		{
+			Item{"item6", -2, 10, enum.Imported},
+			fmt.Errorf("invalid price"),
+		},
 	}
 
-	for _, tc := range positiveTests {
+	for _, tc := range tests {
 		resp := tc.item.validate()
-		require.Equal(t, tc.expectedOutput, resp)
+		if tc.expErr != nil {
+			require.NotNil(t, resp)
+		} else {
+			require.Equal(t, tc.expErr, resp)
+		}
 	}
 }
 
-// Negative Cases
-func TestValidateInvalidItem(t *testing.T) {
-
-	negativeTests := []struct {
-		item           Item
-		expectedOutput error
-	}{
-		{Item{"item2", 10, -20, enum.Manufactured}, nil},
-		{Item{"item3", -2, 10, enum.Imported}, nil},
-	}
-
-	for _, tc := range negativeTests {
-		resp := tc.item.validate()
-		require.NotEqual(t, tc.expectedOutput, resp)
-	}
-
-}
-
-func TestCalculateTaxOnItem(t *testing.T) {
+func TestCalculateTax(t *testing.T) {
 
 	tests := []struct {
 		item        Item

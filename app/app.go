@@ -2,7 +2,8 @@ package app
 
 import (
 	"fmt"
-	"tax-manager/item"
+
+	"github.com/gogillu/tax-manager/item"
 )
 
 const (

@@ -2,7 +2,8 @@ package item
 
 import (
 	"fmt"
-	"tax-manager/item/enum"
+
+	"github.com/gogillu/tax-manager/item/enum"
 
 	validation "github.com/go-ozzo/ozzo-validation"
 )
